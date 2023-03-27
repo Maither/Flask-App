@@ -1,10 +1,10 @@
-import datetime
+from datetime import datetime
 from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///temperature.db'
 db = SQLAlchemy(app)
 
 # Define the Temperature model
@@ -12,8 +12,10 @@ class Temperature(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date_time = db.Column(db.DateTime, nullable=False)
     temperature = db.Column(db.Float, nullable=False)
-        def __repr__(self):
-        return '<Temperature {}>'.format(self.temperature)
+    
+    def commit(self):
+       db.session.add(self)
+       db.session.commit()
 
 @app.route("/")
 def homepage():
@@ -21,23 +23,21 @@ def homepage():
     
 @app.route("/get_json", methods=['POST'])
 def get_post_temp():
-    data = request.get_json()
-    y = data['year']
-    mo = data['month']
-    d = data['day']
-    h = data['hour']
-    mi = data['minute']
-    s = data['second']
-    t = float(data['temp'])
-    dt = datetime.datetime(y, mo, d, h, mi, s)
-    new_temp = Temperature(date_time=dt, temperature=t)
-    db.session.add(new_temp)
-    db.session.commit()
+    #Create temperature.db if abs
+    db.create_all()
     
-    #add datetime and temp to db
-    return jsonify('200')
-
+    #Grabe data from post expect {'date_time':isoformat_datetime(string), 'temperature':float}
+    data = request.get_json()
+    date_time = datetime.fromisoformat(data['date_time'])
+    temperature=data['temperature']
+    
+    # Create new Temperature object and add to database
+    tmp = Temperature(date_time=date_time, temperature=temperature)
+    tmp.commit()
+    
+    # Return response with HTTP status code 201 Created
+    return jsonify(message='Temperature added'), 201
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0", debug=True)
