@@ -24,7 +24,7 @@ class Temperature(Base):
         session.add(self)
         session.commit()
         
-    def post(self, url='http://mether.fr/get_json'):
+    def post(self, url='http://mether.fr/add_temperature'):
         session = Session()
         session.add(self)
         while True:
