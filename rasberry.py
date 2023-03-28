@@ -67,6 +67,9 @@ def get_temperature(route="/sys/bus/w1/devices/28*/w1_slave"):
     #if there is a file else return false
     if len(route_capteurs) > 0:
         with open(route_capteurs[0]) as f:
+	    file = f.read()
+	    print(file)
+	    return False
             #if this is a unexpected string return false
             try:
                 for i, char in enumerate(f.read()):
