@@ -46,7 +46,7 @@ class Temperature(db.Model):
         recent_temperatures = self.query.order_by(Temperature.date_time.desc()).limit(limit).all()
         
         # Create a list of tuples containing the date-time and temperature values
-        temperature_data = [((temperature.date_time), temperature.temperature) for temperature in recent_temperatures]
+        temperature_data = [((temperature.date_time.strftime('%d-%m-%Y %H:%M:%S')), temperature.temperature) for temperature in recent_temperatures]
         
         return temperature_data
 
