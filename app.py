@@ -27,6 +27,7 @@ class Temperature(db.Model):
        """
        db.session.add(self)
        db.session.commit()
+       db.session.close()
        
     def get_temperature(self, limit=10):
         """ 
