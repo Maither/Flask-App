@@ -52,7 +52,8 @@ def main():
             
             tmp = Temperature(date_time=now, temperature=temperature)
             tmp.commit()
-            tmp.post()
+            #url='http://127.0.0.1:5000/add_temperature' for testing
+            tmp.post(url='http://127.0.0.1:5000/add_temperature')
             
             time.sleep(0)
         else:
@@ -63,7 +64,7 @@ def get_temperature(route="/sys/bus/w1/devices/28*/w1_slave"):
     """
     return a float if expected beavior else false
     """
-    #return 3333.0
+    return 3333.0
     #get a list of file route more than one element if more than one sensor
     route_capteurs=glob.glob(route)
     #if there is a file else return false

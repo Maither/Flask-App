@@ -29,7 +29,7 @@ class Temperature(db.Model):
        db.session.commit()
        db.session.close()
        
-    def get_temperature(self, limit=10):
+    def get_recent_temperature(self, limit=10):
         """ 
         Parameters
         ----------
@@ -49,11 +49,14 @@ class Temperature(db.Model):
         temperature_data = [((temperature.date_time.strftime('%d-%m-%Y %H:%M:%S')), temperature.temperature) for temperature in recent_temperatures]
         
         return temperature_data
+    
+    def get_od_temperature(self):
+        query = self.query
 
 @app.route("/")
 def homepage():
     temperatures = Temperature()
-    return render_template("index.html", temperatures=temperatures.get_temperature())
+    return render_template("index.html", temperatures=temperatures.get_recent_temperature())
     
 @app.route("/add_temperature", methods=['POST'])
 def add_temperature():
