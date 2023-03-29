@@ -50,24 +50,29 @@ class Temperature(db.Model):
         
         return temperature_data
     
-    def get_odd_temperature(self, limit=10):
-        temperatures = self.get_recent_temperature(limit=limit*10)
-        buffer_temp = None
-        
+    def get_odd_temperature(self, limit=10, cap=10):
+        temperatures = self.get_recent_temperature(limit=cap*limit)
+        buffer_temp = 300000
         new_temp = []
         
         for t in temperatures:
-            if t[1] != buffer_temp:
+            if (t[1] > buffer_temp + 0.3) or (t[1] < buffer_temp - 0.3):
                 buffer_temp = t[1]
                 new_temp.append(t)
                 
+        if cap > limit * 1000:
+            return new_temp[:limit]
+                
+        if len(new_temp) <= limit:
+            return self.get_odd_temperature(limit=limit, cap=cap*2)
+        
         return new_temp[:limit]
                 
 
 @app.route("/")
 def homepage():
     temperatures = Temperature()
-    return render_template("index.html", temperatures=temperatures.get_odd_temperature())
+    return render_template("index.html", temperatures=temperatures.get_odd_temperature(limit=100))
     
 @app.route("/add_temperature", methods=['POST'])
 def add_temperature():
