@@ -50,13 +50,24 @@ class Temperature(db.Model):
         
         return temperature_data
     
-    def get_od_temperature(self):
-        query = self.query
+    def get_odd_temperature(self, limit=10):
+        temperatures = self.get_recent_temperature(limit=limit*10)
+        buffer_temp = None
+        
+        new_temp = []
+        
+        for t in temperatures:
+            if t[1] != buffer_temp:
+                buffer_temp = t[1]
+                new_temp.append(t)
+                
+        return new_temp[:limit]
+                
 
 @app.route("/")
 def homepage():
     temperatures = Temperature()
-    return render_template("index.html", temperatures=temperatures.get_recent_temperature())
+    return render_template("index.html", temperatures=temperatures.get_odd_temperature())
     
 @app.route("/add_temperature", methods=['POST'])
 def add_temperature():
@@ -83,6 +94,7 @@ def add_temperature():
     # Create a new Temperature object and add it to the database
     tmp = Temperature(date_time=date_time, temperature=temperature)
     tmp.commit()
+    
     
     
     # Return a response indicating that the temperature was added, with an HTTP status code of 201 Created
