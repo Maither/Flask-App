@@ -37,7 +37,7 @@ class Temperature(Base):
                 break
             else:
                 print(response.status_code, 'Error posting temperature')
-                time.sleep(0)
+                time.sleep(1)
                 
 
 
@@ -63,7 +63,7 @@ def get_temperature(route="/sys/bus/w1/devices/28*/w1_slave"):
     """
     return a float if expected beavior else false
     """
-    return 3333.0
+    #return 3333.0
     #get a list of file route more than one element if more than one sensor
     route_capteurs=glob.glob(route)
     #if there is a file else return false
