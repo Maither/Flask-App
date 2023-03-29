@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+	{% block title %}
+		Home page
+	{% endblock %}
+
+	{% block main %}
+	<div>
+		<table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Temperature</th>
+                </tr>
+            </thead>
+            <tbody>
+				{% for temperature in temperatures %}
+					<tr>
+						<td class="my-td">{{ temperature[0] }}</td>
+						<td class="my-td">{{ temperature[1] }}</td>						
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+{% endblock %}
