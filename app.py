@@ -50,8 +50,9 @@ class Temperature(db.Model):
         
         return temperature_data
     
-    def get_odd_temperature(self, limit=10, cap=10):
-        temperatures = self.get_recent_temperature(limit=cap*limit)
+    def get_odd_temperature(self, limit=10):
+        recent_temperatures = self.query.order_by(Temperature.date_time.desc()).all()
+        temperatures = [((temperature.date_time.strftime('%d-%m-%Y %H:%M:%S')), temperature.temperature) for temperature in recent_temperatures]
         buffer_temp = 300000
         new_temp = []
         
@@ -59,20 +60,57 @@ class Temperature(db.Model):
             if (t[1] > buffer_temp + 0.3) or (t[1] < buffer_temp - 0.3):
                 buffer_temp = t[1]
                 new_temp.append(t)
-                
-        if cap > limit * 1000:
-            return new_temp[:limit]
-                
-        if len(new_temp) <= limit:
-            return self.get_odd_temperature(limit=limit, cap=cap*2)
         
         return new_temp[:limit]
+    
+    def clean(self, lossyCompress=False):
+        """ 
+        Parameters
+        ----------
+        compress : TYPE, bool
+            DESCRIPTION. The default is False.
+
+        if False
+        Remove temperature data points with no variation.
+        if True
+        Remove temperature data points with variation bellow 0.3
+        -------
+        None.
+
+        """
+        temperature_data = self.query.order_by(Temperature.date_time.desc()).all()
+        new_data = []
+        
+        
+        if not lossyCompress:
+                last_temperature = None
                 
+                
+                for i, temperature in enumerate(temperature_data):
+                    if last_temperature is None :
+                            new_data.append(temperature)
+                            last_temperature = temperature
+                    if (last_temperature.temperature != temperature.temperature):
+                            new_data.append(temperature_data[i - 1])
+                            new_data.append(temperature)
+                            last_temperature = temperature
+
+        
+        # Remove all temperature data points from the database
+        self.query.delete()
+        db.session.commit()
+        db.session.close()
+        
+        for data in new_data:
+            tmp = Temperature(date_time=data.date_time, temperature=data.temperature)
+            tmp.commit()
+                
+        return tmp
 
 @app.route("/")
 def homepage():
     temperatures = Temperature()
-    return render_template("index.html", temperatures=temperatures.get_odd_temperature(limit=100))
+    return render_template("index.html", temperatures=temperatures.get_recent_temperature(limit=100))
     
 @app.route("/add_temperature", methods=['POST'])
 def add_temperature():
@@ -104,6 +142,13 @@ def add_temperature():
     
     # Return a response indicating that the temperature was added, with an HTTP status code of 201 Created
     return jsonify(message='Temperature added'), 201
+
+@app.route("/clean")
+def clean():
+    tmp = Temperature()
+    temperatures = tmp.clean()
+    return render_template("index.html", temperatures=temperatures.get_recent_temperature(limit=100))
+
 
 
 if __name__ == "__main__":
