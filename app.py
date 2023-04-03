@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -63,7 +63,7 @@ class Temperature(db.Model):
         
         return new_temp[:limit]
     
-    def clean(self, lossyCompress=False):
+    def clean(self, lossyCompress=False, mutate=True):
         """ 
         Parameters
         ----------
@@ -72,7 +72,7 @@ class Temperature(db.Model):
 
         if False
         Remove temperature data points with no variation.
-        if True
+        if True !!! not implemented yet !!!
         Remove temperature data points with variation bellow 0.3
         -------
         None.
@@ -96,21 +96,23 @@ class Temperature(db.Model):
                             last_temperature = temperature
 
         
-        # Remove all temperature data points from the database
-        self.query.delete()
-        db.session.commit()
-        db.session.close()
-        
-        for data in new_data:
-            tmp = Temperature(date_time=data.date_time, temperature=data.temperature)
-            tmp.commit()
-                
-        return tmp
+        if mutate:
+            # Remove all temperature data points from the database
+            self.query.delete()
+            db.session.commit()
+            db.session.close()
+            
+            for data in new_data:
+                tmp = Temperature(date_time=data.date_time, temperature=data.temperature)
+                tmp.commit()
+                    
+            return tmp
+        else:
+            #
+            # !!! return a list !!!
+            #
+            return new_data
 
-@app.route("/")
-def homepage():
-    temperatures = Temperature()
-    return render_template("index.html", temperatures=temperatures.get_recent_temperature(limit=100))
     
 @app.route("/add_temperature", methods=['POST'])
 def add_temperature():
@@ -143,11 +145,23 @@ def add_temperature():
     # Return a response indicating that the temperature was added, with an HTTP status code of 201 Created
     return jsonify(message='Temperature added'), 201
 
-@app.route("/clean")
+@app.route("/", methods=['GET', 'POST'])
+def homepage():
+    temperatures = Temperature()
+    
+    if request.is_json:
+        temperatures.clean()
+        
+    return render_template("index.html", temperatures=temperatures.get_recent_temperature(limit=100))
+    
+    
+
+@app.route("/clean", methods=['GET', 'POST'])
 def clean():
     tmp = Temperature()
     temperatures = tmp.clean()
     return render_template("index.html", temperatures=temperatures.get_recent_temperature(limit=100))
+
 
 
 
