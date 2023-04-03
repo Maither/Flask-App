@@ -5,6 +5,10 @@
 	{% endblock %}
 
 	{% block main %}
+	
+	
+	<button class="clean_btn" >Clean</button>
+	
 	<div>
 		<table>
             <thead>
@@ -23,5 +27,22 @@
 			</tbody>
 		</table>
 	</div>
-
+	<script>
+	$(document).ready(function(){
+	
+		$('.clean_btn').click(function(){
+			$.ajax({
+				url:'',
+				type: 'get',
+				contentType: 'application/json',
+				data: {
+					button_text: $(this).text()
+				},
+				success: function(response){
+					location.reload();
+			}
+			})
+		})
+	})
+	</script>
 {% endblock %}
