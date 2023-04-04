@@ -1,6 +1,9 @@
 from datetime import datetime
 from flask import Flask, render_template, request, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
+import matplotlib.pyplot as plt
+import io
+import base64 
 
 app = Flask(__name__)
 
@@ -50,6 +53,9 @@ class Temperature(db.Model):
         
         return temperature_data
     
+    def load(self):
+        return self.query.order_by(Temperature.date_time.desc()).all()
+    
     def get_odd_temperature(self, limit=10):
         recent_temperatures = self.query.order_by(Temperature.date_time.desc()).all()
         temperatures = [((temperature.date_time.strftime('%d-%m-%Y %H:%M:%S')), temperature.temperature) for temperature in recent_temperatures]
@@ -63,7 +69,7 @@ class Temperature(db.Model):
         
         return new_temp[:limit]
     
-    def clean(self, lossyCompress=False, mutate=True):
+    def clean(self, mutate=True):
         """ 
         Parameters
         ----------
@@ -78,22 +84,20 @@ class Temperature(db.Model):
         None.
 
         """
-        temperature_data = self.query.order_by(Temperature.date_time.desc()).all()
+        temperature_data = self.load()
         new_data = []
         
+        last_temperature = None
         
-        if not lossyCompress:
-                last_temperature = None
-                
-                
-                for i, temperature in enumerate(temperature_data):
-                    if last_temperature is None :
-                            new_data.append(temperature)
-                            last_temperature = temperature
-                    if (last_temperature.temperature != temperature.temperature):
-                            new_data.append(temperature_data[i - 1])
-                            new_data.append(temperature)
-                            last_temperature = temperature
+        for i, temperature in enumerate(temperature_data):
+            if last_temperature is None :
+                    new_data.append(temperature)
+                    last_temperature = temperature
+            if (last_temperature.temperature != temperature.temperature):
+                    if temperature_data[i - 1].date_time != temperature_data[i - 2].date_time:
+                        new_data.append(temperature_data[i - 1])
+                    new_data.append(temperature)
+                    last_temperature = temperature
 
         
         if mutate:
@@ -108,12 +112,49 @@ class Temperature(db.Model):
                     
             return tmp
         else:
-            #
-            # !!! return a list !!!
-            #
             return new_data
-
+        
+    def copy(self):
+            temperature_data = Temperature.load(self)
+            new_data = []
+            for temperature in temperature_data:
+                new_data.append(temperature)
+            return new_data
     
+    def round_temp(self):
+        new_data = self.copy()
+        
+        self.query.delete()
+        db.session.commit()
+        db.session.close()
+        
+        for data in new_data:
+                tmp = Temperature(date_time=data.date_time, temperature=round(data.temperature, 1))
+                tmp.commit()
+                
+    def graph_data(self):
+        # Create the figure and plot the data
+        fig, ax = plt.subplots()
+        
+        x = []
+        y = []
+        new_data = self.copy()
+        
+        for data in new_data:
+            x.append(data.temperature)
+            y.append(data.date_time)
+        
+        ax.plot(y, x)
+    
+        # Save the figure to a buffer
+        buf = io.BytesIO()
+        fig.savefig(buf, format='png')
+    
+        # Embed the image data in the HTML output
+        return base64.b64encode(buf.getbuffer()).decode('ascii')
+                
+        
+            
 @app.route("/add_temperature", methods=['POST'])
 def add_temperature():
     """
@@ -140,8 +181,6 @@ def add_temperature():
     tmp = Temperature(date_time=date_time, temperature=temperature)
     tmp.commit()
     
-    
-    
     # Return a response indicating that the temperature was added, with an HTTP status code of 201 Created
     return jsonify(message='Temperature added'), 201
 
@@ -150,17 +189,22 @@ def homepage():
     temperatures = Temperature()
     
     if request.is_json:
-        temperatures.clean()
+        if request.args['button_text'] == 'Clean':
+            temperatures.clean()
+        elif request.args['button_text'] == 'Round':
+            temperatures.round_temp()
         
-    return render_template("index.html", temperatures=temperatures.get_recent_temperature(limit=100))
+    return render_template("index.html", temperatures=temperatures.get_recent_temperature(limit=100), data=temperatures.graph_data())
     
     
 
 @app.route("/clean", methods=['GET', 'POST'])
 def clean():
     tmp = Temperature()
-    temperatures = tmp.clean()
-    return render_template("index.html", temperatures=temperatures.get_recent_temperature(limit=100))
+    tmp.round_temp()
+    tmp.clean()
+    
+    return render_template("index.html", temperatures=tmp.get_recent_temperature(limit=100))
 
 
 
