@@ -7,9 +7,18 @@
 	{% block main %}
 	
 	
-	<button class="clean_btn" >Clean</button>
-	<button class="clean_btn" >Round</button>
+	<button class="btn clean_btn" >Clean</button>
+	<button class="btn round_btn" >Round</button>
+	<!--<input class="input_numeric" type="text" inputmode="numeric" placeholder="20.0" value="21" pattern="\d*" />-->
+    <!--<button class="btn remove_btn" >Remove</button>-->
+    <div>
+        <label for="min-date">Date minimal</label>
+        <input type="datetime-local" id="min-date" name="min-date" value={{ minmax[0][0] }}>
+        <label for="max-date">Date maximal</label>
+        <input type="datetime-local" id="max-date" name="max-date" value={{ minmax[0][1] }}>
+    </div>
 	<div>
+    	<p>The maximun temperature is {{  minmax[1][1] }}°C</p>
 		<table>
             <thead>
                 <tr>
@@ -38,6 +47,35 @@
 				contentType: 'application/json',
 				data: {
 					button_text: $(this).text()
+				},
+				success: function(response){
+					location.reload();
+			}
+			})
+		})
+		
+		$('.round_btn').click(function(){
+			$.ajax({
+				url:'',
+				type: 'get',
+				contentType: 'application/json',
+				data: {
+					button_text: $(this).text()
+				},
+				success: function(response){
+					location.reload();
+			}
+			})
+		})
+		
+		$('.remove_btn').click(function(){
+			$.ajax({
+				url:'',
+				type: 'get',
+				contentType: 'application/json',
+				data: {
+    				button_text: $(this).text(),
+					value: $('.input_numeric').val()
 				},
 				success: function(response){
 					location.reload();

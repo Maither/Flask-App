@@ -32,6 +32,12 @@ class Temperature(db.Model):
        db.session.commit()
        db.session.close()
        
+    def purge(self):
+    # Remove all temperature data points from the database
+        self.query.delete()
+        db.session.commit()
+        db.session.close()
+    
     def get_recent_temperature(self, limit=10):
         """ 
         Parameters
@@ -86,7 +92,6 @@ class Temperature(db.Model):
         """
         temperature_data = self.load()
         new_data = []
-        
         last_temperature = None
         
         for i, temperature in enumerate(temperature_data):
@@ -102,9 +107,7 @@ class Temperature(db.Model):
         
         if mutate:
             # Remove all temperature data points from the database
-            self.query.delete()
-            db.session.commit()
-            db.session.close()
+            self.purge()
             
             for data in new_data:
                 tmp = Temperature(date_time=data.date_time, temperature=data.temperature)
@@ -123,26 +126,63 @@ class Temperature(db.Model):
     
     def round_temp(self):
         new_data = self.copy()
-        
-        self.query.delete()
-        db.session.commit()
-        db.session.close()
+        self.purge()
         
         for data in new_data:
                 tmp = Temperature(date_time=data.date_time, temperature=round(data.temperature, 1))
                 tmp.commit()
                 
+    def get_temp_and_datetime_array(self):
+        """
+        return datetime and temperature array
+        """
+        temperature = []
+        date_time = []
+        new_data = self.copy()
+        
+        for data in new_data:
+            temperature.append(data.temperature)
+            date_time.append(data.date_time)
+        return date_time, temperature
+    
+    def minmax(self):
+        """
+        
+
+        Returns tuple of the tuple minimum and maximum date and temperature ((min date, max date), (min temp, max temp))
+        -------
+        TYPE
+            tuple
+
+        """
+        d, t = self.get_temp_and_datetime_array()
+        return ((min(d), max(d)), (min(t), max(t)))
+    
+    def build_from_arr(self, data):
+        self.purge()
+        
+        for i in range(len(data[0])):
+            tmp = Temperature(date_time=data[0][i], temperature=data[1][i])
+            tmp.commit()
+    
+    def remove(self, temperature=False, date_time=False):
+        #remove data from db
+        if temperature :
+            d, t = self.get_temp_and_datetime_array()
+            if temperature in t:
+                for i in range(len(t)):
+                    if t[i] == temperature:
+                        d.pop(i)
+                        t.pop(i)
+                        break
+        data = (d, t)
+        self.build_from_arr(data)
+            
     def graph_data(self):
         # Create the figure and plot the data
         fig, ax = plt.subplots()
         
-        x = []
-        y = []
-        new_data = self.copy()
-        
-        for data in new_data:
-            x.append(data.temperature)
-            y.append(data.date_time)
+        y, x = self.get_temp_and_datetime_array()
         
         ax.plot(y, x)
     
@@ -184,17 +224,26 @@ def add_temperature():
     # Return a response indicating that the temperature was added, with an HTTP status code of 201 Created
     return jsonify(message='Temperature added'), 201
 
+
 @app.route("/", methods=['GET', 'POST'])
 def homepage():
+    db.create_all()
     temperatures = Temperature()
+    minmax = temperatures.minmax()
+    min_date = minmax[0][0].strftime('%Y-%m-%dT%H:%M')
+    max_date = minmax[0][1].strftime('%Y-%m-%dT%H:%M')
+    minmax = ((min_date, max_date),(minmax[1][0], minmax[1][1]))
     
     if request.is_json:
         if request.args['button_text'] == 'Clean':
             temperatures.clean()
         elif request.args['button_text'] == 'Round':
             temperatures.round_temp()
+        elif request.args['button_text'] == 'Remove':
+            temperatures.remove(temperature=float(request.args['value']))
         
-    return render_template("index.html", temperatures=temperatures.get_recent_temperature(limit=100), data=temperatures.graph_data())
+        
+    return render_template("index.html", temperatures=temperatures.get_recent_temperature(limit=100), data=temperatures.graph_data(), minmax=minmax)
     
     
 
