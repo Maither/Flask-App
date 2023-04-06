@@ -239,8 +239,8 @@ def homepage():
             temperatures.clean()
         elif request.args['button_text'] == 'Round':
             temperatures.round_temp()
-        elif request.args['button_text'] == 'Remove':
-            temperatures.remove(temperature=float(request.args['value']))
+        elif request.args['button_text'] == 'Set date':
+            print(request.args)
         
         
     return render_template("index.html", temperatures=temperatures.get_recent_temperature(limit=100), data=temperatures.graph_data(), minmax=minmax)

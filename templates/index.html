@@ -96,7 +96,8 @@
 				contentType: 'application/json',
 				data: {
     				button_text: $(this).text(),
-					value: $('.input_numeric').val()
+					min_value: $('.min-date').val(),
+					max_value: $('.max-date').val()
 				},
 				success: function(response){
 					location.reload();
