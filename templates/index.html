@@ -17,6 +17,8 @@
         <label for="max-date">Date maximal</label>
         <input class="max-date" type="datetime-local" id="max-date" name="max-date" value={{ minmax[0][1] }} min={{ minmax[0][0] }} max={{ minmax[0][1] }}>
     </div>
+    <p>{{ minmax }}</p>
+
     <script>
         let minDateInput = document.getElementById('min-date');
         let maxDateInput = document.getElementById('max-date');
@@ -89,20 +91,22 @@
 			})
 		})
 		
-		$('.set_date_btn').click(function(){
-			$.ajax({
-				url:'',
-				type: 'get',
-				contentType: 'application/json',
-				data: {
-    				button_text: $(this).text(),
-					value: $('.input_numeric').val()
-				},
-				success: function(response){
-					location.reload();
-			}
-			})
-		})
-	})
+       $('.set_date_btn').click(function() {
+        $.ajax({
+          url: '',
+          type: 'POST', // change request type to POST
+          contentType: 'application/json',
+          data: JSON.stringify({ 
+            button_text: $(this).text(),
+            min_date: $('.min-date').val(),
+            max_date: $('.max-date').val()
+          }), // use JSON.stringify to send data
+          success: function(response) {
+            
+          }
+        });
+      })
+
+})
 	</script>
 {% endblock %}
