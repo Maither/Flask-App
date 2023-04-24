@@ -54,8 +54,10 @@ class Temperatures(db.Model):
         if not minmax_date:
             return self.query.order_by(Temperatures.date_time.desc()).all()
         else:
-            min_date = datetime.strptime(minmax_date[0], '%Y-%m-%dT%H:%M')
-            max_date = datetime.strptime(minmax_date[1], '%Y-%m-%dT%H:%M')
+            #min_date = datetime.strptime(minmax_date[0], '%Y-%m-%dT%H:%M')
+            #max_date = datetime.strptime(minmax_date[1], '%Y-%m-%dT%H:%M')
+            
+            min_date, max_date = minmax_date
                         
             return self.query.filter(Temperatures.date_time >= min_date, Temperatures.date_time <= max_date).order_by(Temperatures.date_time.desc())
             
@@ -97,8 +99,10 @@ class Temperatures(db.Model):
             recent_temperatures = self.query.order_by(Temperatures.date_time.desc()).limit(limit).all()
         else:
             print(minmax_date)
-            min_date = datetime.strptime(minmax_date[0], '%Y-%m-%dT%H:%M')
-            max_date = datetime.strptime(minmax_date[1], '%Y-%m-%dT%H:%M')
+            #min_date = datetime.strptime(minmax_date[0], '%Y-%m-%dT%H:%M')
+            #max_date = datetime.strptime(minmax_date[1], '%Y-%m-%dT%H:%M')
+            
+            min_date, max_date = minmax_date
             recent_temperatures = self.query.filter(Temperatures.date_time >= min_date, Temperatures.date_time <= max_date).order_by(Temperatures.date_time.desc()).limit(limit).all()
         # Create a list of tuples containing the date-time and temperature values
         temperature_data = [((temperature.date_time.strftime('%d-%m-%Y %H:%M:%S')), temperature.temperature) for temperature in recent_temperatures]
@@ -283,12 +287,13 @@ def homepage():
             min_date = request_data['min_date']
             max_date = request_data['max_date']
             
-            #min_date = datetime.strptime(min_date, '%Y-%m-%dT%H:%M')
-            #max_date = datetime.strptime(max_date, '%Y-%m-%dT%H:%M')
+            min_date = datetime.strptime(min_date, '%Y-%m-%dT%H:%M')
+            max_date = datetime.strptime(max_date, '%Y-%m-%dT%H:%M')
+            minmax_date = (min_date, max_date)
             
-            #minmax = dt.minmax((min_date, max_date))
-            temperatures=dt.get_recent_temperature(minmax_date = minmax[0], limit = 100)
-            data=dt.graph_data(minmax_date = minmax[0])
+            minmax = dt.minmax(minmax_date)
+            temperatures=dt.get_recent_temperature(minmax_date = minmax_date, limit = 100)
+            data=dt.graph_data(minmax_date = minmax_date)
             
             return jsonify({'mimax': minmax, 'temperatures':temperatures, 'data':data})
             
