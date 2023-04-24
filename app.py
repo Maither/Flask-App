@@ -207,7 +207,7 @@ class Temperatures(db.Model):
         data = (d, t)
         self.build_from_arr(data)
         
-    def minmax(self):
+    def minmax(self, minmax = False):
         """
         
 
@@ -217,7 +217,11 @@ class Temperatures(db.Model):
             tuple
 
         """
-        d, t = self.get_temp_and_datetime_array()
+        
+        if not minmax:
+            d, t = self.get_temp_and_datetime_array()
+        else:
+            d, t = self.get_temp_and_datetime_array(minmax)
         
         if len(d) and len(t):
             return ((min(d), max(d)), (min(t), max(t)))
@@ -272,29 +276,23 @@ def homepage():
     if request.method == "POST":
         
         
-        request_data = eval(request.data.decode())
-        print(request_data)
+        request_data = request.get_json()
         
         if request_data['button_text'] == 'Set date':
         
             min_date = request_data['min_date']
             max_date = request_data['max_date']
-            print(min_date, max_date)
-            #return jsonify({'success': True})
-            minmax = ((min_date, max_date),(minmax[1][0], minmax[1][1]))
-                
-            return render_template("index.html", temperatures=dt.get_recent_temperature(minmax_date = minmax[0], limit = 100), data=dt.graph_data(minmax_date = minmax[0]), minmax=minmax)
-    else:
-        db.create_all()
-    
-        
-        
-        dt = Temperatures()
-        
             
-        
-        
-    
+            #min_date = datetime.strptime(min_date, '%Y-%m-%dT%H:%M')
+            #max_date = datetime.strptime(max_date, '%Y-%m-%dT%H:%M')
+            
+            #minmax = dt.minmax((min_date, max_date))
+            temperatures=dt.get_recent_temperature(minmax_date = minmax[0], limit = 100)
+            data=dt.graph_data(minmax_date = minmax[0])
+            
+            return jsonify({'mimax': minmax, 'temperatures':temperatures, 'data':data})
+            
+    else:            
         #prin = dt.set_period(minmax[0])
         
         return render_template("index.html", temperatures=dt.get_recent_temperature(), data=dt.graph_data(), minmax=minmax)
