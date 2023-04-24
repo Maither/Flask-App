@@ -161,7 +161,7 @@ class Temperatures(db.Model):
             datas = self.get_data()
             
         else:
-            datas = self.get_data(minmax_date = minmax_date)
+            datas = self.get_data(minmax_date)
 
         temperature = []
         date_time = []
@@ -177,10 +177,9 @@ class Temperatures(db.Model):
         if not minmax_date :
             y, x = self.get_temp_and_datetime_array()
         else:
-            y, x = self.get_temp_and_datetime_array(minmax_date = minmax_date)
+            y, x = self.get_temp_and_datetime_array(minmax_date)
+            
         fig, ax = plt.subplots()
-        
-        y, x = self.get_temp_and_datetime_array()
         
         ax.plot(y, x)
     
@@ -295,7 +294,7 @@ def homepage():
             temperatures=dt.get_recent_temperature(minmax_date = minmax_date, limit = 100)
             data=dt.graph_data(minmax_date = minmax_date)
             
-            return jsonify({'mimax': minmax, 'temperatures':temperatures, 'data':data})
+            return jsonify({'minmax': minmax, 'temperatures':temperatures, 'data':data})
             
     else:            
         #prin = dt.set_period(minmax[0])

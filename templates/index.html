@@ -41,7 +41,7 @@
         <button class="btn set_date_btn">Set date</button>
     </div>
 	<div>
-    	<p>The maximun temperature is {{  minmax[1][1] }}°C</p>
+    	<p id="max_temp">The maximun temperature is {{  minmax[1][1] }}°C</p>
 		<table>
             <thead>
                 <tr>
@@ -59,7 +59,7 @@
 			</tbody>
 		</table>
 	</div>
-	<img src="data:image/png;base64,{{ data }}" />
+	<img id="graph" src="data:image/png;base64,{{ data }}" />
 	<script>
 	$(document).ready(function(){
 	
@@ -94,7 +94,7 @@
        $('.set_date_btn').click(function() {
         $.ajax({
           url: '',
-          type: 'POST', // change request type to POST
+          type: 'POST',
           contentType: 'application/json',
           data: JSON.stringify({ 
             button_text: $(this).text(),
@@ -102,6 +102,16 @@
             max_date: $('.max-date').val()
           }), // use JSON.stringify to send data
           success: function(response) {
+              
+              var minmax = response.minmax;
+              var temperatures = response.temperatures;
+              var data = response.data;
+              
+              max_temp = document.getElementById("max_temp");
+              max_temp.textContent = "The maximun temperature is " + minmax[1][1].toString() + "°C";
+              
+              graph_data = document.getElementById("graph");
+              graph_data.src = "data:image/png;base64," + data;
             
           }
         });
