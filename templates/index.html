@@ -7,8 +7,8 @@
 	{% block main %}
 	
 	
-	<button class="btn clean_btn" >Clean</button>
-	<button class="btn round_btn" >Round</button>
+	<!--<button class="btn clean_btn" >Clean</button>-->
+	<!--<button class="btn round_btn" >Round</button>-->
 	<!--<input class="input_numeric" type="text" inputmode="numeric" placeholder="20.0" value="21" pattern="\d*" />-->
     <!--<button class="btn remove_btn" >Remove</button>-->
     <div>
@@ -17,7 +17,6 @@
         <label for="max-date">Date maximal</label>
         <input class="max-date" type="datetime-local" id="max-date" name="max-date" value={{ minmax[0][1] }} min={{ minmax[0][0] }} max={{ minmax[0][1] }}>
     </div>
-    <p>{{ minmax }}</p>
 
     <script>
         let minDateInput = document.getElementById('min-date');
@@ -42,14 +41,14 @@
     </div>
 	<div>
     	<p id="max_temp">The maximun temperature is {{  minmax[1][1] }}°C</p>
-		<table>
+		<table class="myTable">
             <thead>
                 <tr>
                     <th>Date</th>
                     <th>Temperature</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="temp_table">
 				{% for temperature in temperatures %}
 					<tr>
 						<td class="my-td">{{ temperature[0] }}</td>
@@ -62,34 +61,6 @@
 	<img id="graph" src="data:image/png;base64,{{ data }}" />
 	<script>
 	$(document).ready(function(){
-	
-		$('.clean_btn').click(function(){
-			$.ajax({
-				url:'',
-				type: 'get',
-				contentType: 'application/json',
-				data: {
-					button_text: $(this).text()
-				},
-				success: function(response){
-					location.reload();
-			}
-			})
-		})
-		
-		$('.round_btn').click(function(){
-			$.ajax({
-				url:'',
-				type: 'get',
-				contentType: 'application/json',
-				data: {
-					button_text: $(this).text()
-				},
-				success: function(response){
-					location.reload();
-			}
-			})
-		})
 		
        $('.set_date_btn').click(function() {
         $.ajax({
@@ -112,6 +83,20 @@
               
               graph_data = document.getElementById("graph");
               graph_data.src = "data:image/png;base64," + data;
+              
+              $('#temp_table').empty();
+              console.log(temperatures.length);
+              for (var i = 0; i < temperatures.length; i++) {
+                  var temperature = temperatures[i];
+                  console.log(temperatures[i]);
+                  var row = $('<tr>');
+                  
+                  row.append($('<td>').addClass('my-td').text(temperature[0]));
+                  row.append($('<td>').addClass('my-td').text(temperature[1]));
+                  
+                  $('#temp_table').append(row);
+              }
+              
             
           }
         });
