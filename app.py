@@ -255,7 +255,7 @@ def add_temperature():
     # Extract the date_time and temperature from the POST data
     data = request.get_json()
     date_time = datetime.fromisoformat(data['date_time'])
-    temperature=data['temperature']
+    temperature=round(data['temperature'], 1)
     
     # Create a new Temperature object and add it to the database
     tmp = Temperatures(date_time=date_time, temperature=temperature)
