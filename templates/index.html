@@ -8,11 +8,21 @@
 	
 	    <div class="container">
         <div class="date-picker">
-            <label for="min-date">Date minimal</label>
-            <input class="min-date" type="datetime-local" id="min-date" name="min-date" value={{ minmax[0][0] }} min={{ minmax[0][0] }} max={{ minmax[0][1] }}>
-            <label for="max-date">Date maximal</label>
-            <input class="max-date" type="datetime-local" id="max-date" name="max-date" value={{ minmax[0][1] }} min={{ minmax[0][0] }} max={{ minmax[0][1] }}>
-            <button class="btn set-date-btn">Set date</button>
+            <div>
+            </div>
+            <div>
+                <label for="min-date">Minimal date</label>
+                <input class="min-date" type="datetime-local" id="min-date" name="min-date" value={{ minmax[0][0] }} min={{ minmax[0][0] }} max={{ minmax[0][1] }}>
+            </div>
+            <div>
+                <label for="max-date">Maximal date</label>
+                <input class="max-date" type="datetime-local" id="max-date" name="max-date" value={{ minmax[0][1] }} min={{ minmax[0][0] }} max={{ minmax[0][1] }}>
+            </div>
+            <div>
+                <button class="btn set-date-btn">Set date</button>
+            </div>
+            <div>
+            </div>
         </div>
         
         <script>
@@ -35,22 +45,26 @@
         </script>
         
         <p id="max-temp">The maximum temperature is {{ minmax[1][1] }}°C</p>
-        <table class="myTable">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Temperature</th>
-                </tr>
-            </thead>
-            <tbody id="temp-table">
-                {% for temperature in temperatures %}
-                    <tr>
-                        <td class="my-td">{{ temperature[0] }}</td>
-                        <td class="my-td">{{ temperature[1] }}</td>                        
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="tableDiv">
+            <div>
+                <table class="myTable">
+                    <thead>
+                        <tr>
+                            <th>Date and time</th>
+                            <th>Temperature</th>
+                        </tr>
+                    </thead>
+                    <tbody id="temp-table">
+                        {% for temperature in temperatures %}
+                            <tr>
+                                <td class="my-td">{{ temperature[0] }}</td>
+                                <td class="my-td">{{ temperature[1] }}</td>                        
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
         <img id="graph" src="data:image/png;base64,{{ data }}" />
     </div>
 	

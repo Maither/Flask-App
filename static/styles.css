@@ -7,7 +7,7 @@ body {
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 0px;
 }
 
 footer {
@@ -17,16 +17,28 @@ footer {
 
 }
 
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-}
-
 .date-picker {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin-bottom: 20px;
+
 }
+
+label {
+
+    margin-left: 10px
+}
+
+.tableDiv {
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+
+
 
 .btn {
     padding: 10px;
@@ -40,10 +52,9 @@ footer {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 20px;
-    background-color: #f2f2f2;
     border: 1px solid #ddd;
     padding: 8px;
-    text-align: left;
+    text-align: center;
 }
 
 .myTable th,
