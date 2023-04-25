@@ -6,59 +6,54 @@
 
 	{% block main %}
 	
-	
-	<!--<button class="btn clean_btn" >Clean</button>-->
-	<!--<button class="btn round_btn" >Round</button>-->
-	<!--<input class="input_numeric" type="text" inputmode="numeric" placeholder="20.0" value="21" pattern="\d*" />-->
-    <!--<button class="btn remove_btn" >Remove</button>-->
-    <div>
-        <label for="min-date">Date minimal</label>
-        <input class="min-date" type="datetime-local" id="min-date" name="min-date" value={{ minmax[0][0] }} min={{ minmax[0][0] }} max={{ minmax[0][1] }}>
-        <label for="max-date">Date maximal</label>
-        <input class="max-date" type="datetime-local" id="max-date" name="max-date" value={{ minmax[0][1] }} min={{ minmax[0][0] }} max={{ minmax[0][1] }}>
-    </div>
-
-    <script>
-        let minDateInput = document.getElementById('min-date');
-        let maxDateInput = document.getElementById('max-date');
+	    <div class="container">
+        <div class="date-picker">
+            <label for="min-date">Date minimal</label>
+            <input class="min-date" type="datetime-local" id="min-date" name="min-date" value={{ minmax[0][0] }} min={{ minmax[0][0] }} max={{ minmax[0][1] }}>
+            <label for="max-date">Date maximal</label>
+            <input class="max-date" type="datetime-local" id="max-date" name="max-date" value={{ minmax[0][1] }} min={{ minmax[0][0] }} max={{ minmax[0][1] }}>
+            <button class="btn set-date-btn">Set date</button>
+        </div>
         
-        // Listen for changes to the min-date input
-        minDateInput.addEventListener('change', function() {
-            if (minDateInput.value > maxDateInput.value) {
-                maxDateInput.value = minDateInput.value;
-            }
-        });
+        <script>
+            let minDateInput = document.getElementById('min-date');
+            let maxDateInput = document.getElementById('max-date');
+            
+            // Listen for changes to the min-date input
+            minDateInput.addEventListener('change', function() {
+                if (minDateInput.value > maxDateInput.value) {
+                    maxDateInput.value = minDateInput.value;
+                }
+            });
+            
+            // Listen for changes to the max-date input
+            maxDateInput.addEventListener('change', function() {
+                if (maxDateInput.value < minDateInput.value) {
+                    minDateInput.value = maxDateInput.value;
+                }
+            });
+        </script>
         
-        // Listen for changes to the max-date input
-        maxDateInput.addEventListener('change', function() {
-            if (maxDateInput.value < minDateInput.value) {
-                minDateInput.value = maxDateInput.value;
-            }
-        });
-    </script>
-    <div>
-        <button class="btn set_date_btn">Set date</button>
-    </div>
-	<div>
-    	<p id="max_temp">The maximun temperature is {{  minmax[1][1] }}°C</p>
-		<table class="myTable">
+        <p id="max-temp">The maximum temperature is {{ minmax[1][1] }}°C</p>
+        <table class="myTable">
             <thead>
                 <tr>
                     <th>Date</th>
                     <th>Temperature</th>
                 </tr>
             </thead>
-            <tbody id="temp_table">
-				{% for temperature in temperatures %}
-					<tr>
-						<td class="my-td">{{ temperature[0] }}</td>
-						<td class="my-td">{{ temperature[1] }}</td>						
-					</tr>
-				{% endfor %}
-			</tbody>
-		</table>
-	</div>
-	<img id="graph" src="data:image/png;base64,{{ data }}" />
+            <tbody id="temp-table">
+                {% for temperature in temperatures %}
+                    <tr>
+                        <td class="my-td">{{ temperature[0] }}</td>
+                        <td class="my-td">{{ temperature[1] }}</td>                        
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <img id="graph" src="data:image/png;base64,{{ data }}" />
+    </div>
+	
 	<script>
 	$(document).ready(function(){
 		
