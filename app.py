@@ -6,6 +6,7 @@ import io
 import base64 
 import json
 
+
 app = Flask(__name__)
 
 # Set the URI for the SQLite database
@@ -264,6 +265,20 @@ def add_temperature():
     # Return a response indicating that the temperature was added, with an HTTP status code of 201 Created
     return jsonify(message='Temperature added'), 201
 
+def display_code(txt):
+    content = ""
+    with open(txt, "r") as file:
+        content = file.read()
+
+    return render_template('layout.html', content=content)
+
+@app.route("/application")
+def application():
+    return display_code(txt = "app.py")
+
+@app.route("/styles")
+def styles():
+    return display_code(txt = "static/styles.css")
 
 @app.route("/", methods=['GET', 'POST'])
 def homepage():
@@ -271,6 +286,7 @@ def homepage():
     db.create_all() 
      
     dt = Temperatures()
+    dt.clean_db()
     minmax = dt.minmax()
     min_date = minmax[0][0].strftime('%Y-%m-%dT%H:%M')
     max_date = minmax[0][1].strftime('%Y-%m-%dT%H:%M')

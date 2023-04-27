@@ -44,7 +44,7 @@
             });
         </script>
         
-        <p id="max-temp">The maximum temperature is {{ minmax[1][1] }}°C</p>
+        
         <div class="tableDiv">
             <div>
                 <table class="myTable">
@@ -65,13 +65,16 @@
                 </table>
             </div>
         </div>
-        <img id="graph" src="data:image/png;base64,{{ data }}" />
+        <div>
+            <p id="max-temp">The maximum temperature is {{ minmax[1][1] }}°C</p>
+            <img id="graph" src="data:image/png;base64,{{ data }}" />
+        </div>
     </div>
 	
 	<script>
 	$(document).ready(function(){
 		
-       $('.set_date_btn').click(function() {
+       $('.set-date-btn').click(function() {
         $.ajax({
           url: '',
           type: 'POST',
@@ -87,7 +90,7 @@
               var temperatures = response.temperatures;
               var data = response.data;
               
-              max_temp = document.getElementById("max_temp");
+              max_temp = document.getElementById("max-temp");
               max_temp.textContent = "The maximun temperature is " + minmax[1][1].toString() + "°C";
               
               graph_data = document.getElementById("graph");
@@ -105,12 +108,10 @@
                   
                   $('#temp_table').append(row);
               }
-              
-            
           }
         });
       })
 
-})
+    })
 	</script>
 {% endblock %}

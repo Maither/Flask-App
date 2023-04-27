@@ -2,28 +2,54 @@
 
 <html lang="en">
 
-    <head>
+<head>
 
-        <meta charset="utf-8">
-        <meta name="viewport" content="initial-scale=1, width=device-width">
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, width=device-width">
+    <title>Mether {% block title %}{% endblock %}</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
+    <link href="/static/styles.css" rel="stylesheet">
 
-        
+</head>
 
-        <title>Mether {% block title %}{% endblock %}</title>
-		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-		<link href="/static/styles.css" rel="stylesheet">
+<body class="container">
+    <nav>
+        <div class="link">
+            <a href="/">Home</a>        
+            <a href="/application">app.py</a>
+            <a href="/styles">styles.css</a>
 
-    </head>
+        </div>
+    </nav>
 
-    <body class="container">
-	
-	{% block main %}
-	{% endblock %}
+    {% block main %}
+    {% endblock %}
 
-        <footer>
-            &copy; 2023 Mether. All rights reserved.
-        </footer>
+    {% macro display_code(code) %}
+        <pre><code>{{ code|safe }}</code></pre>
+    {% endmacro %}
 
-    </body>
+    {% if content %}
+        {{ display_code(content) }}
+    {% endif %}
+
+    <footer>
+        &copy; 2023 Mether. All rights reserved.
+    </footer>
+
+
+</body>
 
 </html>
+
+
+
+<script>
+    $(document).ready(function() {
+        $('pre').addClass('prettyprint');
+        prettyPrint();
+    });
+</script>
+
