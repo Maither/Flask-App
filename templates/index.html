@@ -96,7 +96,7 @@
               graph_data = document.getElementById("graph");
               graph_data.src = "data:image/png;base64," + data;
               
-              $('#temp_table').empty();
+              $('#temp-table').empty();
               console.log(temperatures.length);
               for (var i = 0; i < temperatures.length; i++) {
                   var temperature = temperatures[i];
@@ -106,7 +106,7 @@
                   row.append($('<td>').addClass('my-td').text(temperature[0]));
                   row.append($('<td>').addClass('my-td').text(temperature[1]));
                   
-                  $('#temp_table').append(row);
+                  $('#temp-table').append(row);
               }
           }
         });
