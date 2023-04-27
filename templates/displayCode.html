@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+	{% block title %}
+		{{ pageName }}
+	{% endblock %}
+	
+	{% block main %}
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">	
+	
+	
+        {% macro display_code(code) %}
+            <pre><code>{{ code|safe }}</code></pre>
+        {% endmacro %}
+    
+        {% if content %}
+            {{ display_code(content) }}
+        {% endif %}
+        
+    	<script>
+            $(document).ready(function() {
+                $('pre').addClass('prettyprint');
+                prettyPrint();
+            });
+        </script>
+	{% endblock %}	

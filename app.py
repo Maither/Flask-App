@@ -270,7 +270,7 @@ def display_code(txt):
     with open(txt, "r") as file:
         content = file.read()
 
-    return render_template('layout.html', content=content)
+    return render_template('displayCode.html', content=content, pageName=txt)
 
 @app.route("/application")
 def application():
