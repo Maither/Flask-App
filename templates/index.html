@@ -5,113 +5,140 @@
 	{% endblock %}
 
 	{% block main %}
-
-	    <div class="container">
-        <div class="date-picker">
-            <div>
-            </div>
-            <div>
-                <label for="min-date">Minimal date</label>
-                <input class="min-date" type="datetime-local" id="min-date" name="min-date" value={{ minmax[0][0] }} min={{ minmax[0][0] }} max={{ minmax[0][1] }}>
-            </div>
-            <div>
-                <label for="max-date">Maximal date</label>
-                <input class="max-date" type="datetime-local" id="max-date" name="max-date" value={{ minmax[0][1] }} min={{ minmax[0][0] }} max={{ minmax[0][1] }}>
-            </div>
-            <div>
-                <button class="btn set-date-btn">Set date</button>
-            </div>
-            <div>
-            </div>
-        </div>
+        <div class="container">
         
-        <script>
-            let minDateInput = document.getElementById('min-date');
-            let maxDateInput = document.getElementById('max-date');
+            <div class="date-picker">
             
-            // Listen for changes to the min-date input
-            minDateInput.addEventListener('change', function() {
-                if (minDateInput.value > maxDateInput.value) {
-                    maxDateInput.value = minDateInput.value;
-                }
-            });
-            
-            // Listen for changes to the max-date input
-            maxDateInput.addEventListener('change', function() {
-                if (maxDateInput.value < minDateInput.value) {
-                    minDateInput.value = maxDateInput.value;
-                }
-            });
-        </script>
-        
-        
-        <div class="tableDiv">
-            <div>
-                <table class="myTable">
-                    <thead>
-                        <tr>
-                            <th>Date and time</th>
-                            <th>Temperature</th>
-                        </tr>
-                    </thead>
-                    <tbody id="temp-table">
-                        {% for temperature in temperatures %}
-                            <tr>
-                                <td class="my-td">{{ temperature[0] }}</td>
-                                <td class="my-td">{{ temperature[1] }}</td>                        
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <div>
+                </div>
+                
+                <div>
+                    <label for="min-date">Minimal date</label>
+                    <input class="min-date" type="datetime-local" id="min-date" name="min-date" value={{ minmax[0][0] }}>
+                </div>
+                
+                <div>
+                    <label for="max-date">Maximal date</label>
+                    <input class="max-date" type="datetime-local" id="max-date" name="max-date" value={{ minmax[0][1] }}>
+                </div>
+                
+                <div>
+                    <button class="btn set-date-btn">Set date</button>
+                </div>
+                
+                <div>
+                </div>
+                
             </div>
+            
+            <script>
+                let minDateInput = document.getElementById('min-date');
+                let maxDateInput = document.getElementById('max-date');
+                
+                // Listen for changes to the min-date input
+                minDateInput.addEventListener('change', function() {
+                    if (minDateInput.value > maxDateInput.value) {
+                        maxDateInput.value = minDateInput.value;
+                    }
+                });
+                
+                // Listen for changes to the max-date input
+                maxDateInput.addEventListener('change', function() {
+                    if (maxDateInput.value < minDateInput.value) {
+                        minDateInput.value = maxDateInput.value;
+                    }
+                });
+            </script>
+            
+            <div class="tableAndMinmax">
+            
+                <div class="tableDiv">
+                
+                    <div>
+                        <table class="myTable">
+                            <thead>
+                                <tr>
+                                    <th>Date and time</th>
+                                    <th>Temperature</th>
+                                </tr>
+                            </thead>
+                            <tbody id="temp-table">
+                                {% for temperature in temperatures %}
+                                    <tr>
+                                        <td class="my-td">{{ temperature[0] }}</td>
+                                        <td class="my-td">{{ temperature[1] }}</td>                        
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                        
+                    <div class="minmaxDiv">
+                        <h1>Temperature</h1>
+                        <p id="min-temp">min {{ minmax[1][0] }}°C</p>
+                        <p id="med-temp">med {{ minmax[1][2] }}°C</p>
+                        <p id="max-temp">max {{ minmax[1][1] }}°C</p>
+                    </div>                    
+                        
+                </div>
+                
+            </div>
+            
+            <div>
+                <img id="graph" src="data:image/png;base64,{{ data }}" />
+            </div>
+                
         </div>
-        <div>
-            <p id="max-temp">The maximum temperature is {{ minmax[1][1] }}°C</p>
-            <img id="graph" src="data:image/png;base64,{{ data }}" />
-        </div>
-    </div>
-	
-	<script>
-	$(document).ready(function(){
-		
-       $('.set-date-btn').click(function() {
-        $.ajax({
-          url: '',
-          type: 'POST',
-          contentType: 'application/json',
-          data: JSON.stringify({ 
-            button_text: $(this).text(),
-            min_date: $('.min-date').val(),
-            max_date: $('.max-date').val()
-          }), // use JSON.stringify to send data
-          success: function(response) {
-              
-              var minmax = response.minmax;
-              var temperatures = response.temperatures;
-              var data = response.data;
-              
-              max_temp = document.getElementById("max-temp");
-              max_temp.textContent = "The maximun temperature is " + minmax[1][1].toString() + "°C";
-              
-              graph_data = document.getElementById("graph");
-              graph_data.src = "data:image/png;base64," + data;
-              
-              $('#temp-table').empty();
-              console.log(temperatures.length);
-              for (var i = 0; i < temperatures.length; i++) {
-                  var temperature = temperatures[i];
-                  console.log(temperatures[i]);
-                  var row = $('<tr>');
-                  
-                  row.append($('<td>').addClass('my-td').text(temperature[0]));
-                  row.append($('<td>').addClass('my-td').text(temperature[1]));
-                  
-                  $('#temp-table').append(row);
-              }
-          }
-        });
-      })
 
-    })
-	</script>
-{% endblock %}
+    	
+    	<script>
+        	$(document).ready(function(){
+        		
+               $('.set-date-btn').click(function() {
+                $.ajax({
+                  url: '',
+                  type: 'POST',
+                  contentType: 'application/json',
+                  data: JSON.stringify({ 
+                    button_text: $(this).text(),
+                    min_date: $('.min-date').val(),
+                    max_date: $('.max-date').val(),
+                    width: window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth
+                  }), // use JSON.stringify to send data
+                  success: function(response) {
+                      
+                      var minmax = response.minmax;
+                      var temperatures = response.temperatures;
+                      var data = response.data;
+                      
+                      max_temp = document.getElementById("max-temp");
+                      max_temp.textContent = "max " + minmax[1][1].toString() + "°C";
+                      
+                      min_temp = document.getElementById("min-temp");
+                      min_temp.textContent = "min " + minmax[1][0].toString() + "°C";
+                      
+                      med_temp = document.getElementById("med-temp");
+                      med_temp.textContent = "med " + minmax[1][2].toString() + "°C";
+                      
+                      graph_data = document.getElementById("graph");
+                      graph_data.src = "data:image/png;base64," + data;
+                      
+                      $('#temp-table').empty();
+                      console.log(temperatures.length);
+                      for (var i = 0; i < temperatures.length; i++) {
+                          var temperature = temperatures[i];
+                          console.log(temperatures[i]);
+                          var row = $('<tr>');
+                          
+                          row.append($('<td>').addClass('my-td').text(temperature[0]));
+                          row.append($('<td>').addClass('my-td').text(temperature[1]));
+                          
+                          $('#temp-table').append(row);
+                      }
+                  }
+                });
+              })
+        
+            })
+    	</script>
+    {% endblock %}

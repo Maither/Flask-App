@@ -2,39 +2,33 @@
 
 <html lang="en">
 
-<head>
-
-    <meta charset="utf-8">
-    <meta name="viewport" content="initial-scale=1, width=device-width">
-    <title>Mether {% block title %}{% endblock %}</title>
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link href="/static/styles.css" rel="stylesheet">
-
-</head>
-
-<body class="container">
-    <nav>
-        <div class="link">
-            <a href="/">Home</a>        
-            <a href="/application">app.py</a>
-            <a href="/styles">styles.css</a>
-
-        </div>
-    </nav>
-
-    {% block main %}
-    {% endblock %}
-
-    <footer>
-        &copy; 2023 Mether. All rights reserved.
-    </footer>
-
-
-</body>
+    <head>
+    
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1, width=device-width">
+        <title>Mether {% block title %}{% endblock %}</title>
+    	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <link href="/static/styles.css" rel="stylesheet">
+    
+    </head>
+    
+    <body class="container">
+        <nav>
+            <div class="link">
+                <a href="/">Home</a>        
+                <a href="/application">app.py</a>
+                <a href="/styles">styles.css</a>
+            </div>
+        </nav>
+    
+        {% block main %}
+        {% endblock %}
+    
+        <footer>
+            &copy; 2023 Mether. All rights reserved.
+        </footer>
+    
+    
+    </body>
 
 </html>
-
-
-
-
-

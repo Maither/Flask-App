@@ -64,7 +64,7 @@ def get_temperature(route="/sys/bus/w1/devices/28*/w1_slave"):
     """
     return a float if expected beavior else false
     """
-    return 53.33
+    return 55.33
     #get a list of file route more than one element if more than one sensor
     route_capteurs=glob.glob(route)
     #if there is a file else return false

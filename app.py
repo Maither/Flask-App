@@ -95,16 +95,22 @@ class Temperatures(db.Model):
 
         """
         
-        if minmax_date == False:
-            # Query the db for the last by def 10 temperature
-            recent_temperatures = self.query.order_by(Temperatures.date_time.desc()).limit(limit).all()
+        if limit:
+            if minmax_date == False:
+                # Query the db for the last by def 10 temperature
+                recent_temperatures = self.query.order_by(Temperatures.date_time.desc()).limit(limit).all()
+                
+            else:         
+                min_date, max_date = minmax_date
+                recent_temperatures = self.query.filter(Temperatures.date_time >= min_date, Temperatures.date_time <= max_date).order_by(Temperatures.date_time.desc()).limit(limit).all()
         else:
-            print(minmax_date)
-            #min_date = datetime.strptime(minmax_date[0], '%Y-%m-%dT%H:%M')
-            #max_date = datetime.strptime(minmax_date[1], '%Y-%m-%dT%H:%M')
+            if minmax_date == False:
+                # Query the db for the last by def 10 temperature
+                recent_temperatures = self.query.order_by(Temperatures.date_time.desc()).all()
+            else:         
+                min_date, max_date = minmax_date
+                recent_temperatures = self.query.filter(Temperatures.date_time >= min_date, Temperatures.date_time <= max_date).order_by(Temperatures.date_time.desc()).all()
             
-            min_date, max_date = minmax_date
-            recent_temperatures = self.query.filter(Temperatures.date_time >= min_date, Temperatures.date_time <= max_date).order_by(Temperatures.date_time.desc()).limit(limit).all()
         # Create a list of tuples containing the date-time and temperature values
         temperature_data = [((temperature.date_time.strftime('%d-%m-%Y %H:%M:%S')), temperature.temperature) for temperature in recent_temperatures]
         
@@ -228,7 +234,7 @@ class Temperatures(db.Model):
             d, t = self.get_temp_and_datetime_array(minmax)
         
         if len(d) and len(t):
-            return ((min(d), max(d)), (min(t), max(t)))
+            return ((min(d), max(d)), (min(t), max(t), round(sum(t)/len(t),1)))
         else:
             return ((datetime(2000, 1, 1), datetime(2000, 1, 1)),(0, 0))
         
@@ -287,18 +293,12 @@ def homepage():
      
     dt = Temperatures()
     dt.clean_db()
-    minmax = dt.minmax()
-    min_date = minmax[0][0].strftime('%Y-%m-%dT%H:%M')
-    max_date = minmax[0][1].strftime('%Y-%m-%dT%H:%M')
-    minmax = ((min_date, max_date),(minmax[1][0], minmax[1][1]))
     
-    if request.method == "POST":
-        
-        
+    if request.method == "POST":               
         request_data = request.get_json()
+
         
-        if request_data['button_text'] == 'Set date':
-        
+        if request_data['button_text'] == 'Set date':        
             min_date = request_data['min_date']
             max_date = request_data['max_date']
             
@@ -312,10 +312,14 @@ def homepage():
             
             return jsonify({'minmax': minmax, 'temperatures':temperatures, 'data':data})
             
-    else:            
+    else: 
+        minmax = dt.minmax()
+        min_date = minmax[0][0].strftime('%Y-%m-%dT%H:%M')
+        max_date = minmax[0][1].strftime('%Y-%m-%dT%H:%M')
+        minmax = ((min_date, max_date),(minmax[1][0], minmax[1][1], minmax[1][2]))           
         #prin = dt.set_period(minmax[0])
         
-        return render_template("index.html", temperatures=dt.get_recent_temperature(), data=dt.graph_data(), minmax=minmax)
+        return render_template("index.html", temperatures=dt.get_recent_temperature(limit=False), data=dt.graph_data(), minmax=minmax)
    
     #return jsonify({'success': True})
     
