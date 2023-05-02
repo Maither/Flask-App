@@ -5,6 +5,10 @@
 	{% endblock %}
 
 	{% block main %}
+
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
         <div class="container">
         
             <div class="date-picker">
@@ -85,10 +89,49 @@
             </div>
             
             <div>
-                <img id="graph" src="data:image/png;base64,{{ data }}" />
+                <canvas id="myChart"></canvas>
             </div>
                 
         </div>
+        
+        <script>
+            var chart = Chart.getChart("myChart");
+            if (chart) {
+              chart.destroy();
+            }
+            var datas = {{ data | tojson }};
+            var date_times = datas[0];
+            var temperatures = datas[1];
+            
+            var data = {
+                labels: date_times,
+                datasets: [{
+                    label: "Ma courbe",
+                    data: temperatures,
+                    fill: false,
+                    borderColor: "rgb(75, 192, 192)",
+                    tension: 0.1              
+                }]
+            };
+            
+            var config = {
+                type: 'line',
+                data: data,
+                options: {
+                    scales: {
+                        x: {
+                            type:'time',
+                            time: {
+                                unit: 'second'
+                            }
+                        }
+                    }
+                }
+            };
+            
+            var myChart = new Chart(document.getElementById('myChart'), config);
+        
+        </script>
 
     	
     	<script>
@@ -106,10 +149,14 @@
                     width: window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth
                   }), // use JSON.stringify to send data
                   success: function(response) {
+                      var chart = Chart.getChart("myChart");
+                    if (chart) {
+                      chart.destroy();
+                    }
                       
                       var minmax = response.minmax;
                       var temperatures = response.temperatures;
-                      var data = response.data;
+                      var datas = response.data;
                       
                       max_temp = document.getElementById("max-temp");
                       max_temp.textContent = "max " + minmax[1][1].toString() + "°C";
@@ -120,8 +167,8 @@
                       med_temp = document.getElementById("med-temp");
                       med_temp.textContent = "med " + minmax[1][2].toString() + "°C";
                       
-                      graph_data = document.getElementById("graph");
-                      graph_data.src = "data:image/png;base64," + data;
+                      //graph_data = document.getElementById("graph");
+                      //graph_data.src = "data:image/png;base64," + data;
                       
                       $('#temp-table').empty();
                       console.log(temperatures.length);
@@ -133,8 +180,39 @@
                           row.append($('<td>').addClass('my-td').text(temperature[0]));
                           row.append($('<td>').addClass('my-td').text(temperature[1]));
                           
-                          $('#temp-table').append(row);
+                          $('#temp-table').append(row);   
                       }
+                      
+                      var date_times = datas[0];
+                    var temperatures = datas[1];
+                    
+                    var data = {
+                        labels: date_times,
+                        datasets: [{
+                            label: "Ma courbe",
+                            data: temperatures,
+                            fill: false,
+                            borderColor: "rgb(75, 192, 192)",
+                            tension: 0.1              
+                        }]
+                    };
+                    
+                    var config = {
+                        type: 'line',
+                        data: data,
+                        options: {
+                            scales: {
+                                x: {
+                                    type:'time',
+                                    time: {
+                                        unit: 'second'
+                                    }
+                                }
+                            }
+                        }
+                    };
+                    
+                    var myChart = new Chart(document.getElementById('myChart'), config);
                   }
                 });
               })

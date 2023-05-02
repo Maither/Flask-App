@@ -176,7 +176,22 @@ class Temperatures(db.Model):
         for data in datas:
             temperature.append(data.temperature)
             date_time.append(data.date_time)
-        return date_time, temperature        
+        return date_time, temperature
+
+    def get_timestamp_and_tem_array(self, minmax_date = False):
+        if not minmax_date :
+            datas = self.get_data()
+            
+        else:
+            datas = self.get_data(minmax_date)
+            
+        temperature = []
+        timestamp = []
+        
+        for data in datas:
+            temperature.append(data.temperature)
+            timestamp.append(data.date_time.timestamp())
+        return timestamp, temperature
        
     def graph_data(self, minmax_date = False):
         # Create the figure and plot the data
@@ -236,7 +251,7 @@ class Temperatures(db.Model):
         if len(d) and len(t):
             return ((min(d), max(d)), (min(t), max(t), round(sum(t)/len(t),1)))
         else:
-            return ((datetime(2000, 1, 1), datetime(2000, 1, 1)),(0, 0))
+            return ((datetime(2000, 1, 1), datetime(2000, 1, 1)),(0, 0, 0))
         
     def set_period(self, minmax_date):
         return 0
@@ -307,8 +322,8 @@ def homepage():
             minmax_date = (min_date, max_date)
             
             minmax = dt.minmax(minmax_date)
-            temperatures=dt.get_recent_temperature(minmax_date = minmax_date, limit = 100)
-            data=dt.graph_data(minmax_date = minmax_date)
+            temperatures=dt.get_recent_temperature(minmax_date = minmax_date, limit = 10)
+            data=dt.get_timestamp_and_tem_array(minmax_date = minmax_date)
             
             return jsonify({'minmax': minmax, 'temperatures':temperatures, 'data':data})
             
@@ -319,7 +334,7 @@ def homepage():
         minmax = ((min_date, max_date),(minmax[1][0], minmax[1][1], minmax[1][2]))           
         #prin = dt.set_period(minmax[0])
         
-        return render_template("index.html", temperatures=dt.get_recent_temperature(limit=False), data=dt.graph_data(), minmax=minmax)
+        return render_template("index.html", temperatures=dt.get_recent_temperature(limit=10), data=dt.get_timestamp_and_tem_array(), minmax=minmax)
    
     #return jsonify({'success': True})
     
