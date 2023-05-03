@@ -334,7 +334,7 @@ def homepage():
         minmax = ((min_date, max_date),(minmax[1][0], minmax[1][1], minmax[1][2]))           
         #prin = dt.set_period(minmax[0])
         
-        return render_template("index.html", temperatures=dt.get_recent_temperature(limit=10), data=dt.get_timestamp_and_tem_array(), minmax=minmax)
+        return render_template("index.html", temperatures=dt.get_recent_temperature(limit=10), data=dt.get_temp_and_datetime_array(), minmax=minmax)
    
     #return jsonify({'success': True})
     

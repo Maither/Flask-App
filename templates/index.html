@@ -95,41 +95,56 @@
         </div>
         
         <script>
-            var chart = Chart.getChart("myChart");
-            if (chart) {
-              chart.destroy();
-            }
-            var datas = {{ data | tojson }};
-            var date_times = datas[0];
-            var temperatures = datas[1];
             
-            var data = {
-                labels: date_times,
-                datasets: [{
-                    label: "Ma courbe",
-                    data: temperatures,
-                    fill: false,
-                    borderColor: "rgb(75, 192, 192)",
-                    tension: 0.1              
-                }]
-            };
-            
-            var config = {
-                type: 'line',
-                data: data,
-                options: {
-                    scales: {
-                        x: {
-                            type:'time',
-                            time: {
-                                unit: 'second'
+            function makeChart(chart, datas) {
+                if (chart) {
+                  chart.destroy();
+                }
+                
+                var date_times = datas[0];
+                var temperatures = datas[1];
+                
+                for datetime 
+                
+                var data = {
+                    labels: date_times,
+                    datasets: [{
+                        label: "Ma courbe",
+                        data: temperatures,
+                        fill: false,
+                        borderColor: "rgb(75, 192, 192)",
+                        tension: 0.1              
+                    }]
+                };
+                
+                var config = {
+                    type: 'line',
+                    data: data,
+                    options: {
+                        scales: {
+                            x: {
+                                type:'time',
+                                time: {
+                                    unit: 'second',
+                                    displayFormats: {
+                                        'second': 'dd/MM/yy hh:mm'
+                                    }
+                                }
                             }
                         }
                     }
-                }
-            };
+                };
+                
+                var myChart = new Chart(document.getElementById('myChart'), config);
+            }
             
-            var myChart = new Chart(document.getElementById('myChart'), config);
+            var chart = Chart.getChart("myChart");
+            var datas = {{ data | tojson }};
+            console.log(datas);
+            var myDate = new Date(datas[0][0]);
+            console.log(myDate.getTime());
+            makeChart(chart, datas);
+            
         
         </script>
 
@@ -149,10 +164,7 @@
                     width: window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth
                   }), // use JSON.stringify to send data
                   success: function(response) {
-                      var chart = Chart.getChart("myChart");
-                    if (chart) {
-                      chart.destroy();
-                    }
+
                       
                       var minmax = response.minmax;
                       var temperatures = response.temperatures;
@@ -183,36 +195,10 @@
                           $('#temp-table').append(row);   
                       }
                       
-                      var date_times = datas[0];
-                    var temperatures = datas[1];
-                    
-                    var data = {
-                        labels: date_times,
-                        datasets: [{
-                            label: "Ma courbe",
-                            data: temperatures,
-                            fill: false,
-                            borderColor: "rgb(75, 192, 192)",
-                            tension: 0.1              
-                        }]
-                    };
-                    
-                    var config = {
-                        type: 'line',
-                        data: data,
-                        options: {
-                            scales: {
-                                x: {
-                                    type:'time',
-                                    time: {
-                                        unit: 'second'
-                                    }
-                                }
-                            }
-                        }
-                    };
-                    
-                    var myChart = new Chart(document.getElementById('myChart'), config);
+                      
+                    var chart = Chart.getChart("myChart");
+                    makeChart(chart, datas);
+
                   }
                 });
               })
