@@ -20,7 +20,7 @@ nav a {
 /* Center the container and set a max-width */
 .container {
   margin: auto;
-  max-width: 800px;
+  max-width: 80%;
 }
 
 /* Style the date picker */

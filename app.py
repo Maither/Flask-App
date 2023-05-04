@@ -1,10 +1,11 @@
 from datetime import datetime
-from flask import Flask, render_template, request, jsonify, request, redirect
+from flask import Flask, render_template, request, jsonify, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 import matplotlib.pyplot as plt
 import io
-import base64 
-import json
+import base64
+import os
+
 
 
 app = Flask(__name__)
@@ -322,8 +323,8 @@ def homepage():
             minmax_date = (min_date, max_date)
             
             minmax = dt.minmax(minmax_date)
-            temperatures=dt.get_recent_temperature(minmax_date = minmax_date, limit = 10)
-            data=dt.get_timestamp_and_tem_array(minmax_date = minmax_date)
+            temperatures=dt.get_recent_temperature(minmax_date = minmax_date)
+            data=dt.get_temp_and_datetime_array(minmax_date = minmax_date)
             
             return jsonify({'minmax': minmax, 'temperatures':temperatures, 'data':data})
             
@@ -334,11 +335,15 @@ def homepage():
         minmax = ((min_date, max_date),(minmax[1][0], minmax[1][1], minmax[1][2]))           
         #prin = dt.set_period(minmax[0])
         
-        return render_template("index.html", temperatures=dt.get_recent_temperature(limit=10), data=dt.get_temp_and_datetime_array(), minmax=minmax)
+        return render_template("index.html", temperatures=dt.get_recent_temperature(), data=dt.get_temp_and_datetime_array(), minmax=minmax)
    
     #return jsonify({'success': True})
+ 
     
-
+ #Thx https://www.pexels.com/photo/photograph-of-a-burning-fire-672636/ for the photo
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
 
