@@ -1,94 +1,85 @@
-/* Set default font family and size */
+/* styles.css */
+
 body {
-  font-family: Arial, sans-serif;
-  font-size: 16px;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    margin: 0;
+    padding: 0;
 }
 
-/* Style the navigation bar */
+.container {
+    width: 80%;
+    margin: 0 auto;
+}
+
 nav {
-  background-color: #333;
-  color: #fff;
-  padding: 10px;
+    background: #333;
+    color: #fff;
+    padding: 15px;
 }
 
 nav a {
-  color: #fff;
-  text-decoration: none;
-  margin-right: 10px;
+    color: #fff;
+    text-decoration: none;
+    padding: 0 5px;
+    transition: background 0.3s;
 }
 
-/* Center the container and set a max-width */
-.container {
-  margin: auto;
-  max-width: 80%;
+nav a:hover {
+    background: #555;
 }
 
-/* Style the date picker */
 .date-picker {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-top: 20px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin: 20px 0;
 }
 
-.date-picker div {
-  margin-right: 20px;
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
 }
 
-.date-picker label {
-  display: block;
-  margin-bottom: 5px;
+table, th, td {
+    border: 1px solid #ccc;
 }
 
-.date-picker button {
-  background-color: #333;
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  cursor: pointer;
+th, td {
+    padding: 10px;
+    text-align: left;
 }
 
-/* Style the table and minmax section */
-.tableAndMinmax {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-.tableDiv {
-  margin-right: 20px;
-}
-
-.myTable {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 20px;
-}
-
-.myTable th,
-.myTable td {
-  border: 1px solid #ddd;
-  padding: 8px;
-}
-
-.myTable th {
-  text-align: left;
-  background-color: #f2f2f2;
+th {
+    background: #f4f4f4;
 }
 
 .my-td {
-  text-align: right;
+    white-space: nowrap;
+}
+
+.tableAndMinmax {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
 }
 
 .minmaxDiv {
-  background-color: #f2f2f2;
-  padding: 20px;
-  text-align: center;
+    margin-left: 20px;
 }
 
-/* Style the footer */
+canvas {
+    max-width: 100%;
+    height: auto;
+}
+
 footer {
-  text-align: center;
-  margin-top: 20px;
+    background: #333;
+    color: #fff;
+    text-align: center;
+    padding: 30px;
+    margin-top: 30px;
 }

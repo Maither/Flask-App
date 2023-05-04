@@ -13,7 +13,7 @@ db = SQLAlchemy(app)
 
 class Temperatures(db.Model):
     """
-    A model representing a temperature measurement with a datetime.
+    Represents a temperature measurement with an associated datetime.
     """
 
     # Define the columns of the Temperature table
@@ -24,7 +24,7 @@ class Temperatures(db.Model):
     
     def commit(self):
        """
-       Add the current Temperature object to the database.
+       Save the current Temperature object to the database.
        """
        db.session.add(self)
        db.session.commit()
@@ -32,16 +32,15 @@ class Temperatures(db.Model):
 
     def purge(self):
         """
-        rm all data from db
+        Delete all rows from the database.
         """
         self.query.delete()
         db.session.commit()
         db.session.close()
         
-    def get_data(self, minmax_date = False):
+    def get_all_temperatures(self, minmax_date = False):
         """
-        Returns all data order by date
-
+        Retrieve all temperature measurements, optionally filtered by date range.
         """
         if not minmax_date:
             return self.query.order_by(Temperatures.date_time.desc()).all()
@@ -50,9 +49,9 @@ class Temperatures(db.Model):
                         
             return self.query.filter(Temperatures.date_time >= min_date, Temperatures.date_time <= max_date).order_by(Temperatures.date_time.desc())
     
-    def get_recent_temperature(self, limit=10, minmax_date = False):
+    def get_recent_temperatures(self, limit=10, minmax_date = False):
         """ 
-        Returns list of tuple (date_time, temperature)
+        Retrieve recent temperature measurements, optionally filtered by date range and limited by count.
 
         """
         
@@ -79,10 +78,10 @@ class Temperatures(db.Model):
     
     def clean_db(self):
         """
-        remove data point if not relevant between two date if there is no variation
+        Remove redundant temperature measurements from the database.
         """
         
-        temperature_data = self.get_data()
+        temperature_data = self.get_all_temperatures()
         temperature_data = temperature_data.copy()
         new_data = []
         last_temperature = None
@@ -106,25 +105,25 @@ class Temperatures(db.Model):
             
     def db_to_array(self, minmax_date = False):
         """
-        return datetime and temperature array between the date provide in the tuple mimax_date if false return a array of all the db
+        Retrieve temperature measurements as arrays of datetimes and temperatures, optionally filtered by date range.
         """
         if not minmax_date :
-            datas = self.get_data()
+            temperatures = self.get_all_temperatures()
             
         else:
-            datas = self.get_data(minmax_date)
+            temperatures = self.get_all_temperatures(minmax_date)
 
         temperature = []
         date_time = []
         
-        for data in datas:
+        for data in temperatures:
             temperature.append(data.temperature)
             date_time.append(data.date_time)
         return date_time, temperature
     
     def build_from_arr(self, data):
         """
-        Helper function that recreate the db from the data array
+        Rebuild the database from an array of datetime and temperature pairs.
         """
         data = data.copy()
         
@@ -136,8 +135,7 @@ class Temperatures(db.Model):
 
     def remove(self, temperature=False, date_time=False):
         """
-        remove data from db
-        for develepement and testing
+        Remove a temperature measurement from the database, specified by temperature or datetime.
         """
         if temperature :
             d, t = self.db_to_array()
@@ -152,9 +150,7 @@ class Temperatures(db.Model):
         
     def minmax(self, minmax_date = False):
         """
-        Returns tuple of the tuple minimum, maximum date and temperature and the medium temperature ((min date, max date), (min temp, max temp, med temp))
-        if the query is empty return ((datetime(2000, 1, 1), datetime(2000, 1, 1)),(0, 0, 0))
-        if you provide a tuple of datetime (min_date, max_date) it return a tuple minimum, maximum date and temperature and the medium temperature ((min date, max date), (min temp, max temp, med temp)) of the query between the two date
+        Calculate the minimum, maximum, and average temperatures, optionally filtered by date range.
 
         """
         
@@ -189,7 +185,7 @@ def add_temperature():
     # Extract the date_time and temperature from the POST data
     data = request.get_json()
     date_time = datetime.fromisoformat(data['date_time'])
-    temperature=round(data['temperature'], 1)
+    temperature = round(data['temperature'], 1)
     
     # Create a new Temperature object and add it to the database
     tmp = Temperatures(date_time=date_time, temperature=temperature)
@@ -234,7 +230,7 @@ def homepage():
             minmax_date = (min_date, max_date)
             
             minmax = dt.minmax(minmax_date)
-            temperatures=dt.get_recent_temperature(minmax_date = minmax_date, limit=False)
+            temperatures=dt.get_recent_temperatures(minmax_date = minmax_date, limit=False)
             data=dt.db_to_array(minmax_date = minmax_date)
             
             return jsonify({'minmax': minmax, 'temperatures':temperatures, 'data':data})
@@ -246,9 +242,7 @@ def homepage():
         minmax = ((min_date, max_date),(minmax[1][0], minmax[1][1], minmax[1][2]))           
         #prin = dt.set_period(minmax[0])
         
-        return render_template("index.html", temperatures=dt.get_recent_temperature(limit=False), data=dt.db_to_array(), minmax=minmax)
-   
-    #return jsonify({'success': True})
+        return render_template("index.html", temperatures=dt.get_recent_temperatures(limit=False), data=dt.db_to_array(), minmax=minmax)
  
     
  #Thx https://www.pexels.com/photo/photograph-of-a-burning-fire-672636/ for the photo
