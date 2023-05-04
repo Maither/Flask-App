@@ -1,12 +1,7 @@
 from datetime import datetime
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
-import matplotlib.pyplot as plt
-import io
-import base64
 import os
-
-
 
 app = Flask(__name__)
 
@@ -18,7 +13,7 @@ db = SQLAlchemy(app)
 
 class Temperatures(db.Model):
     """
-    A model representing a temperature measurement with a timestamp.
+    A model representing a temperature measurement with a datetime.
     """
 
     # Define the columns of the Temperature table
@@ -45,54 +40,19 @@ class Temperatures(db.Model):
         
     def get_data(self, minmax_date = False):
         """
-        
-
         Returns all data order by date
-        -------
-        TYPE
-            adress
 
         """
         if not minmax_date:
             return self.query.order_by(Temperatures.date_time.desc()).all()
-        else:
-            #min_date = datetime.strptime(minmax_date[0], '%Y-%m-%dT%H:%M')
-            #max_date = datetime.strptime(minmax_date[1], '%Y-%m-%dT%H:%M')
-            
+        else:          
             min_date, max_date = minmax_date
                         
             return self.query.filter(Temperatures.date_time >= min_date, Temperatures.date_time <= max_date).order_by(Temperatures.date_time.desc())
-            
-    
-    def db_to_array(self):
-        '''
-        
-
-        Returns array of tuple dateTime and temperature float
-        -------
-        data : TYPE
-            DESCRIPTION.
-
-        '''
-        datas = self.get_data()
-        
-        data = []
-        
-        for dt in datas:
-            data.append((dt.date_time, dt.temperature))
-            
-        return data
     
     def get_recent_temperature(self, limit=10, minmax_date = False):
         """ 
-        Parameters
-        ----------
-        limit : TYPE, int
-            DESCRIPTION. The default is 10.
-
         Returns list of tuple (date_time, temperature)
-        -------
-        None.
 
         """
         
@@ -118,6 +78,9 @@ class Temperatures(db.Model):
         return temperature_data
     
     def clean_db(self):
+        """
+        remove data point if not relevant between two date if there is no variation
+        """
         
         temperature_data = self.get_data()
         temperature_data = temperature_data.copy()
@@ -141,17 +104,9 @@ class Temperatures(db.Model):
             tmp = Temperatures(date_time=data.date_time, temperature=data.temperature)
             tmp.commit()
             
-    def round_temp(self):
-        new_data = self.get_data()
-        self.purge()
-        
-        for data in new_data:
-                tmp = Temperatures(date_time=data.date_time, temperature=round(data.temperature, 1))
-                tmp.commit()
-            
-    def get_temp_and_datetime_array(self, minmax_date = False):
+    def db_to_array(self, minmax_date = False):
         """
-        return datetime and temperature array
+        return datetime and temperature array between the date provide in the tuple mimax_date if false return a array of all the db
         """
         if not minmax_date :
             datas = self.get_data()
@@ -166,42 +121,13 @@ class Temperatures(db.Model):
             temperature.append(data.temperature)
             date_time.append(data.date_time)
         return date_time, temperature
-
-    def get_timestamp_and_tem_array(self, minmax_date = False):
-        if not minmax_date :
-            datas = self.get_data()
-            
-        else:
-            datas = self.get_data(minmax_date)
-            
-        temperature = []
-        timestamp = []
-        
-        for data in datas:
-            temperature.append(data.temperature)
-            timestamp.append(data.date_time.timestamp())
-        return timestamp, temperature
-       
-    def graph_data(self, minmax_date = False):
-        # Create the figure and plot the data
-        
-        if not minmax_date :
-            y, x = self.get_temp_and_datetime_array()
-        else:
-            y, x = self.get_temp_and_datetime_array(minmax_date)
-            
-        fig, ax = plt.subplots()
-        
-        ax.plot(y, x)
-    
-        # Save the figure to a buffer
-        buf = io.BytesIO()
-        fig.savefig(buf, format='png')
-    
-        # Embed the image data in the HTML output
-        return base64.b64encode(buf.getbuffer()).decode('ascii')
     
     def build_from_arr(self, data):
+        """
+        Helper function that recreate the db from the data array
+        """
+        data = data.copy()
+        
         self.purge()
         
         for i in range(len(data[0])):
@@ -209,9 +135,12 @@ class Temperatures(db.Model):
             tmp.commit()
 
     def remove(self, temperature=False, date_time=False):
-        #remove data from db
+        """
+        remove data from db
+        for develepement and testing
+        """
         if temperature :
-            d, t = self.get_temp_and_datetime_array()
+            d, t = self.db_to_array()
             if temperature in t:
                 for i in range(len(t)):
                     if t[i] == temperature:
@@ -221,29 +150,23 @@ class Temperatures(db.Model):
         data = (d, t)
         self.build_from_arr(data)
         
-    def minmax(self, minmax = False):
+    def minmax(self, minmax_date = False):
         """
-        
-
-        Returns tuple of the tuple minimum and maximum date and temperature ((min date, max date), (min temp, max temp))
-        -------
-        TYPE
-            tuple
+        Returns tuple of the tuple minimum, maximum date and temperature and the medium temperature ((min date, max date), (min temp, max temp, med temp))
+        if the query is empty return ((datetime(2000, 1, 1), datetime(2000, 1, 1)),(0, 0, 0))
+        if you provide a tuple of datetime (min_date, max_date) it return a tuple minimum, maximum date and temperature and the medium temperature ((min date, max date), (min temp, max temp, med temp)) of the query between the two date
 
         """
         
-        if not minmax:
-            d, t = self.get_temp_and_datetime_array()
+        if not minmax_date:
+            d, t = self.db_to_array()
         else:
-            d, t = self.get_temp_and_datetime_array(minmax)
+            d, t = self.db_to_array(minmax_date)
         
         if len(d) and len(t):
             return ((min(d), max(d)), (min(t), max(t), round(sum(t)/len(t),1)))
         else:
             return ((datetime(2000, 1, 1), datetime(2000, 1, 1)),(0, 0, 0))
-        
-    def set_period(self, minmax_date):
-        return 0
 
                 
 @app.route("/add_temperature", methods=['POST'])
@@ -311,8 +234,8 @@ def homepage():
             minmax_date = (min_date, max_date)
             
             minmax = dt.minmax(minmax_date)
-            temperatures=dt.get_recent_temperature(minmax_date = minmax_date)
-            data=dt.get_temp_and_datetime_array(minmax_date = minmax_date)
+            temperatures=dt.get_recent_temperature(minmax_date = minmax_date, limit=False)
+            data=dt.db_to_array(minmax_date = minmax_date)
             
             return jsonify({'minmax': minmax, 'temperatures':temperatures, 'data':data})
             
@@ -323,7 +246,7 @@ def homepage():
         minmax = ((min_date, max_date),(minmax[1][0], minmax[1][1], minmax[1][2]))           
         #prin = dt.set_period(minmax[0])
         
-        return render_template("index.html", temperatures=dt.get_recent_temperature(), data=dt.get_temp_and_datetime_array(), minmax=minmax)
+        return render_template("index.html", temperatures=dt.get_recent_temperature(limit=False), data=dt.db_to_array(), minmax=minmax)
    
     #return jsonify({'success': True})
  
