@@ -118,21 +118,9 @@ class Temperatures(db.Model):
         return temperature_data
     
     def clean_db(self):
-        """ 
-        Parameters
-        ----------
-        compress : TYPE, bool
-            DESCRIPTION. The default is False.
-
-        if False
-        Remove temperature data points with no variation.
-        if True !!! not implemented yet !!!
-        Remove temperature data points with variation bellow 0.3
-        -------
-        None.
-
-        """
+        
         temperature_data = self.get_data()
+        temperature_data = temperature_data.copy()
         new_data = []
         last_temperature = None
         
