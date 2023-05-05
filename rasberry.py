@@ -56,7 +56,7 @@ def main():
             print(now, temperature)
             
             tmp = Temperature(date_time=now, temperature=temperature)
-            tmp.commit()
+            #tmp.commit()
             #url='http://127.0.0.1:5000/add_temperature' for testing
             #tmp.post(url='http://127.0.0.1:5000/add_temperature')
             while True:
