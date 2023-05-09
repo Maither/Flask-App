@@ -1,0 +1,41 @@
+[INTRO]
+
+Host: "Hello everyone! In this video, we're going to walk you through an exciting project that involves collecting temperature data, storing it in a database, and displaying it on a web page using Python, Flask, and Chart.js. Let's dive right in!"
+
+[OVERVIEW]
+
+Host: "The main components of our project are:
+
+    A Python script that collects temperature data and saves it to a SQLite database.
+    A Flask web application that reads the data from the database and displays it on a web page.
+    A web page that uses Chart.js to visualize the temperature data in a line chart.
+
+Let's start by taking a closer look at the Python script that collects the temperature data."
+
+[PYTHON SCRIPT]
+
+Host: "In our Python script, we define a Temperature class that represents the temperature data. This class has a commit method to save the data to the SQLite database, and a post method to send the data to the Flask web application.
+
+The get_temperature function is responsible for reading the temperature data. In this example, we have hardcoded a value of 58.0 as the temperature, but you can replace this function with your own implementation to read data from a temperature sensor.
+
+The main function runs in an infinite loop, collecting temperature data, saving it to the database, and sending it to the Flask web application."
+
+[FLASK WEB APPLICATION]
+
+Host: "Now let's move on to the Flask web application. The web application is responsible for handling HTTP requests from the client, reading the temperature data from the SQLite database, and rendering the web page with the data.
+
+We have defined several routes in our Flask application, such as:
+
+    The root route (/) that renders the main page with the temperature data.
+    The /add_temperature route that receives the temperature data from the Python script and adds it to the database.
+    The /styles route that serves the CSS stylesheet.
+
+[WEB PAGE AND CHART.JS]
+
+Host: "Finally, let's discuss the web page that displays the temperature data. We use the Jinja2 template engine to render the HTML page with the temperature data from the Flask application.
+
+We also use Chart.js, a popular JavaScript library for rendering charts, to create a line chart that visualizes the temperature data over time. We have included a date picker that allows users to filter the data based on a specific date range.
+
+[CONCLUSION]
+
+Host: "That's it for our walkthrough of this temperature monitoring project! We hope you found it insightful and inspiring. With just a few modifications, you can adapt this project to your specific needs, such as monitoring other types of sensor data or integrating it with IoT devices. Thanks for watching, and happy coding!"
