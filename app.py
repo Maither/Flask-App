@@ -125,7 +125,7 @@ class Temperatures(db.Model):
         """
         Rebuild the database from an array of datetime and temperature pairs.
         """
-        data = data.copy()
+        #data = data.copy()
         
         self.purge()
         
@@ -135,7 +135,7 @@ class Temperatures(db.Model):
 
     def remove(self, temperature=False, date_time=False):
         """
-        Remove a temperature measurement from the database, specified by temperature or datetime.
+        Remove a temperature measurement from the database, specified by temperature.
         """
         if temperature :
             d, t = self.db_to_array()
@@ -209,13 +209,18 @@ def application():
 def styles():
     return display_code(txt = "static/styles.css")
 
+@app.route("/raspberry")
+def styles():
+    return display_code(txt = "raspberry.py")
+
 @app.route("/", methods=['GET', 'POST'])
 def homepage():
    
     db.create_all() 
      
     dt = Temperatures()
-    dt.clean_db()
+    
+    #dt.remove(temperature=5.0)
     
     if request.method == "POST":               
         request_data = request.get_json()
@@ -234,6 +239,7 @@ def homepage():
             data=dt.db_to_array(minmax_date = minmax_date)
             
             return jsonify({'minmax': minmax, 'temperatures':temperatures, 'data':data})
+        
             
     else: 
         minmax = dt.minmax()

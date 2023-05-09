@@ -1,33 +1,16 @@
-from sqlalchemy import Column, Integer, Float, DateTime
-from sqlalchemy.orm import declarative_base
-import sqlalchemy
 import glob
 from datetime import datetime
 import time
 import requests
 
-engine = sqlalchemy.create_engine('sqlite:///temperature.db')
-Base = declarative_base()
-Session = sqlalchemy.orm.sessionmaker(bind=engine)
-
 # Define the Temperature model
-class Temperature(Base):
-    __tablename__ = 'temperature'
-    
-    id = Column(Integer, primary_key=True)
-    date_time = Column(DateTime, nullable=False)
-    temperature = Column(Float, nullable=False)
-    
-    
-    def commit(self):
-        session = Session()
-        session.add(self)
-        session.commit()
-        session.close()
+class Temperature:
+    def __init__(self, date_time, temperature):
+        self.date_time = date_time
+        self.temperature = temperature
         
     def post(self, url='http://mether.fr/add_temperature'):
-        session = Session()
-        session.add(self)
+
         while True:
             data = {'date_time': self.date_time.isoformat(), 'temperature': self.temperature}
             while True:
@@ -35,10 +18,9 @@ class Temperature(Base):
                     response = requests.post(url, json=data)
                     break
                 except :
-                    time.sleep(2)
+                    time.sleep(1)
             if response.status_code == 201:
                 print('Temperature posted successfully')
-                session.close()
                 break
             else:
                 print(response.status_code, 'Error posting temperature')
@@ -47,34 +29,20 @@ class Temperature(Base):
 
 
 def main():
-    Base.metadata.create_all(engine)
-    
     while True:
         temperature = get_temperature()
-        if temperature:
-            now = datetime.now()
-            print(now, temperature)
-            
-            tmp = Temperature(date_time=now, temperature=temperature)
-            #tmp.commit()
-            #url='http://127.0.0.1:5000/add_temperature' for testing
-            #tmp.post(url='http://127.0.0.1:5000/add_temperature')
-            while True:
-                try:
-                    tmp.post()
-                    break
-                except:
-                    pass
-            time.sleep(600)
+        
+        if temperature == False:
+            time.sleep(1)
         else:
-             time.sleep(1)
+            post_temperature(temperature)
+            time.sleep(599)
 	
 	
 def get_temperature(route="/sys/bus/w1/devices/28*/w1_slave"):
     """
     return a float if expected beavior else false
     """
-    
     #get a list of file route more than one element if more than one sensor
     route_capteurs=glob.glob(route)
     #if there is a file else return false
@@ -86,6 +54,23 @@ def get_temperature(route="/sys/bus/w1/devices/28*/w1_slave"):
             except ValueError:
                 return False
     return False
+
+
+def post_temperature(temperature):
+    now = datetime.now()
+
+    tmp = Temperature(date_time=now, temperature=temperature)
+    #tmp.commit()
+    #url='http://127.0.0.1:5000/add_temperature' for testing
+    #tmp.post(url='http://127.0.0.1:5000/add_temperature')
+    while True:
+        time.sleep(1)
+        try:
+            tmp.post()
+            break
+        except:
+            pass
+    
 
 
 if __name__ == "__main__":
